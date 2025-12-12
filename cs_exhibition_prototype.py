@@ -1,0 +1,241 @@
+import tkinter as tk
+from tkinter import ttk
+import random
+
+# ----------------------------
+# MAIN WINDOW
+# ----------------------------
+root = tk.Tk()
+root.title("Astrology Game")
+root.attributes("-fullscreen", True)
+root.configure(bg="black")
+
+# ----------------------------
+# FONTS
+# ----------------------------
+title_font = ("Helvetica", 40, "bold")
+menu_button_font = ("Helvetica", 26, "bold")
+label_font = ("Helvetica", 18)
+input_font = ("Helvetica", 16)
+button_font = ("Helvetica", 20, "bold")
+result_font = ("Helvetica", 16)
+
+# ================================================================
+#                    MAIN MENU SCREEN
+# ================================================================
+menu_frame = tk.Frame(root, bg="black")
+
+menu_title = tk.Label(menu_frame,
+                      text="🔮 Astrology Game 🔮",
+                      fg="gold", bg="black",
+                      font=title_font)
+menu_title.pack(pady=60)
+
+def start_game():
+    menu_frame.pack_forget()
+    game_frame.pack()
+
+def exit_game():
+    root.quit()
+
+play_button = tk.Button(menu_frame, text="Play",
+                        font=menu_button_font,
+                        bg="#0040ff", fg="white",
+                        padx=40, pady=20,
+                        command=start_game)
+play_button.pack(pady=20)
+
+exit_button = tk.Button(menu_frame, text="Exit",
+                        font=menu_button_font,
+                        bg="#cc0000", fg="white",
+                        padx=40, pady=20,
+                        command=exit_game)
+exit_button.pack(pady=20)
+
+menu_frame.pack(fill="both", expand=True)
+
+# ================================================================
+#                       GAME SCREEN
+# ================================================================
+game_frame = tk.Frame(root, bg="black")
+
+# ----------------------------
+# TITLE
+# ----------------------------
+title_label = tk.Label(game_frame,
+                       text="✨ Astronomy Prediction Game ✨",
+                       fg="gold", bg="black", font=("Helvetica", 32, "bold"))
+title_label.pack(pady=10)
+
+# ----------------------------
+# INPUT FRAME
+# ----------------------------
+input_frame = tk.Frame(game_frame, bg="black")
+input_frame.pack(pady=5)
+
+# Name
+tk.Label(input_frame, text="Name:",
+         font=label_font, fg="cyan", bg="black").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+entry_name = tk.Entry(input_frame, font=input_font, width=15)
+entry_name.grid(row=0, column=1, padx=10)
+
+# Birth Date
+tk.Label(input_frame, text="Birth Date:",
+         font=label_font, fg="cyan", bg="black").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+entry_Date = tk.Entry(input_frame, font=input_font, width=15)
+entry_Date.grid(row=1, column=1, padx=10)
+
+# Birth Month
+tk.Label(input_frame, text="Birth Month:",
+         font=label_font, fg="cyan", bg="black").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+entry_month = tk.Entry(input_frame, font=input_font, width=15)
+entry_month.grid(row=2, column=1, padx=10)
+
+# Birth Year
+tk.Label(input_frame, text="Birth Year:",
+         font=label_font, fg="cyan", bg="black").grid(row=3, column=0, padx=10, pady=5, sticky="e")
+entry_year = tk.Entry(input_frame, font=input_font, width=15)
+entry_year.grid(row=3, column=1, padx=10)
+
+# Gender
+tk.Label(input_frame, text="Gender:",
+         font=label_font, fg="cyan", bg="black").grid(row=4, column=0, padx=10, pady=5, sticky="e")
+entry_gender = tk.Entry(input_frame, font=input_font, width=15)
+entry_gender.grid(row=4, column=1, padx=10)
+
+# ----------------------------
+# PROGRESS BAR
+# ----------------------------
+pb = ttk.Progressbar(game_frame, orient="horizontal", length=600, mode="determinate")
+
+# ----------------------------
+# RESULT LABEL
+# ----------------------------
+result_label = tk.Label(game_frame, text="", fg="white", bg="black",
+                        font=result_font, justify="left", anchor="nw")
+result_label.pack(fill="both", expand=True, padx=20, pady=10)
+
+# ================================================================
+#                    GAME LOGIC
+# ================================================================
+careers = ["Astrophysicist", "Space Scientist", "Doctor", "Engineer",
+           "AI Researcher", "Entrepreneur", "Pilot", "Writer",
+           "Film Maker", "Teacher", "Defence Officer", "Biologist",
+           "Cyber Security Expert", "Psychologist"]
+
+natures = ["calm and focused", "energized and ambitious", "creative and thoughtful",
+           "funny and charming", "serious but kind-hearted", "fast-learning and confident",
+           "adventurous and bold", "quiet but powerful"]
+
+future_events = ["a big opportunity will come soon", "you will meet someone who changes your life",
+                 "your hard work will suddenly pay off", "you will discover a new passion",
+                 "something unexpected will make you very happy",
+                 "you will travel to a new place next year", "you will overcome a challenge successfully"]
+
+lucky_elements = ["Starlight", "Cosmic Dust", "Blue Comet", "Solar Wind",
+                  "Nebula Glow", "Red Planet Energy", "Lunar Beam"]
+
+
+def run_prediction():
+    result_label.config(text="")
+    pb["value"] = 0
+    pb.pack(pady=5)
+
+    name = entry_name.get()
+    Date = entry_Date.get()
+    month = entry_month.get()
+    year = entry_year.get()
+    gender = entry_gender.get()
+
+    try:
+        year = int(year)
+        Date = int(Date)
+    except:
+        result_label.config(text="❌ Please enter valid numbers!", fg="red")
+        pb.pack_forget()
+        return
+
+    def animate(value=0):
+        if value <= 100:
+            pb["value"] = value
+            root.after(15, animate, value + 1)
+        else:
+            show_result()
+
+    def show_result():
+        career = random.choice(careers)
+        nature = random.choice(natures)
+        event = random.choice(future_events)
+        lucky = random.choice(lucky_elements)
+
+        if Date <= 10:
+            family_line = "You are independent and strong-willed."
+        elif Date <= 20:
+            family_line = "You balance competition and cooperation naturally."
+        else:
+            family_line = "You have strong social and leadership qualities."
+
+        text = (
+            f"\n🔮 Astrology Prediction for {name} 🔮\n\n"
+            f"👤 Name: {name}\n"
+            f"📅 Birth Date: {Date}\n"
+            f"🌙 Birth Month: {month}\n"
+            f"📆 Birth Year: {year}\n"
+            f"🚻 Gender: {gender}\n"
+            f"\n-----------------------------\n\n"
+            f"✨ Nature: You are {nature}\n"
+            f"🚀 Career Path: {career}\n"
+            f"🔭 Prediction: {event}\n"
+            f"🌌 Lucky Cosmic Element: {lucky}\n"
+            f"\n💫 Life Insight: {family_line}\n"
+        )
+
+        def type_text(t, i=0):
+            if i <= len(t):
+                result_label.config(text=t[:i])
+                result_label.after(10, type_text, t, i + 1)
+
+        type_text(text)
+
+    root.after(100, animate)
+
+# ================================================================
+#                   BUTTONS (WITH BACK BUTTON)
+# ================================================================
+button_frame = tk.Frame(game_frame, bg="black")
+button_frame.pack(pady=10)
+
+predict_btn = tk.Button(button_frame, text="Predict",
+                        font=button_font, bg="#0040ff", fg="white",
+                        padx=20, pady=10, command=run_prediction)
+predict_btn.pack(side="left", padx=10)
+
+clear_btn = tk.Button(button_frame, text="Clear",
+                      font=button_font, bg="#888888", fg="white",
+                      padx=20, pady=10, command=lambda: [
+                          entry_name.delete(0, tk.END),
+                          entry_Date.delete(0, tk.END),
+                          entry_month.delete(0, tk.END),
+                          entry_year.delete(0, tk.END),
+                          entry_gender.delete(0, tk.END),
+                          result_label.config(text=""),
+                          pb.pack_forget()
+                      ])
+clear_btn.pack(side="left", padx=10)
+
+back_btn = tk.Button(button_frame, text="Back",
+                     font=button_font, bg="#cc0000", fg="white",
+                     padx=20, pady=10,
+                     command=lambda: [game_frame.pack_forget(), menu_frame.pack()])
+back_btn.pack(side="left", padx=10)
+
+# ================================================================
+# ENTER KEY NAVIGATION
+# ================================================================
+entry_name.bind("<Return>", lambda e: entry_Date.focus())
+entry_Date.bind("<Return>", lambda e: entry_month.focus())
+entry_month.bind("<Return>", lambda e: entry_year.focus())
+entry_year.bind("<Return>", lambda e: entry_gender.focus())
+entry_gender.bind("<Return>", lambda e: predict_btn.focus())
+
+root.mainloop()
