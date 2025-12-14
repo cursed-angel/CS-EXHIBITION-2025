@@ -1,0 +1,311 @@
+import random
+import customtkinter as ctk
+
+
+type_speed=20 # milliseconds per character for typing effect
+
+
+# ----------------------------
+# customtkinter setup
+# ----------------------------
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
+# ----------------------------
+# MAIN WINDOW
+# ----------------------------
+root = ctk.CTk()
+root.title("Astrology Game")
+
+# make window the requested size (1980x1080) and center it
+TARGET_W, TARGET_H = 1980, 1080
+root.attributes("-fullscreen", False)
+root.update_idletasks()
+screen_total_w = root.winfo_screenwidth()
+screen_total_h = root.winfo_screenheight()
+pos_x = max((screen_total_w - TARGET_W) // 2, 0)
+pos_y = max((screen_total_h - TARGET_H) // 2, 0)
+root.geometry(f"{TARGET_W}x{TARGET_H}+{pos_x}+{pos_y}")
+
+# ----------------------------
+# FONTS / STYLES
+# ----------------------------
+title_font = ("Helvetica", 40, "bold")
+menu_button_font = ("Helvetica", 26, "bold")
+label_font = ("Helvetica", 18)
+input_font = ("Helvetica", 16)
+button_font = ("Helvetica", 20, "bold")
+result_font = ("Helvetica", 16)
+
+# make a solid dark background holder (no image logic)
+bg_holder = ctk.CTkFrame(root, fg_color="black", corner_radius=0)
+bg_holder.pack_propagate(False)
+bg_holder.pack(fill="both", expand=True)
+
+# ================================================================
+#                    MAIN MENU SCREEN
+# ================================================================
+menu_frame = ctk.CTkFrame(bg_holder, fg_color="black", corner_radius=0)
+menu_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+menu_title = ctk.CTkLabel(menu_frame, text="🔮 Astrology Game 🔮",
+                          text_color="gold", font=title_font, fg_color="black")
+menu_title.pack(pady=60)
+
+def start_game():
+    menu_frame.place_forget()
+    game_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+    game_frame.lift()
+
+def exit_game():
+    root.quit()
+
+play_button = ctk.CTkButton(menu_frame, text="Play", font=menu_button_font,
+                            fg_color="#0040ff", text_color="white",
+                            corner_radius=8, border_width=0, command=start_game)
+play_button.pack(pady=20)
+
+exit_button = ctk.CTkButton(menu_frame, text="Exit", font=menu_button_font,
+                            fg_color="#cc0000", text_color="white",
+                            corner_radius=8, border_width=0, command=exit_game)
+exit_button.pack(pady=20)
+
+# ================================================================
+#                       GAME SCREEN
+# ================================================================
+game_frame = ctk.CTkFrame(bg_holder, fg_color="black", corner_radius=0)
+
+title_label = ctk.CTkLabel(game_frame, text="✨ Astrology Prediction Game ✨",
+                           text_color="gold", font=("Helvetica", 32, "bold"),
+                           fg_color="black")
+title_label.pack(pady=10)
+
+# ----------------------------
+# INPUT FRAME (dark)
+# ----------------------------
+input_frame = ctk.CTkFrame(game_frame, fg_color="black", corner_radius=0)
+input_frame.pack(pady=5)
+
+ctk.CTkLabel(input_frame, text="Name:", text_color="cyan", font=label_font, fg_color="black").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+entry_name = ctk.CTkEntry(input_frame, width=220, font=input_font)
+entry_name.grid(row=0, column=1, padx=10)
+
+ctk.CTkLabel(input_frame, text="Birth Date:", text_color="cyan", font=label_font, fg_color="black").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+entry_Date = ctk.CTkEntry(input_frame, width=220, font=input_font)
+entry_Date.grid(row=1, column=1, padx=10)
+
+ctk.CTkLabel(input_frame, text="Birth Month:", text_color="cyan", font=label_font, fg_color="black").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+entry_month = ctk.CTkEntry(input_frame, width=220, font=input_font)
+entry_month.grid(row=2, column=1, padx=10)
+
+ctk.CTkLabel(input_frame, text="Birth Year:", text_color="cyan", font=label_font, fg_color="black").grid(row=3, column=0, padx=10, pady=5, sticky="e")
+entry_year = ctk.CTkEntry(input_frame, width=220, font=input_font)
+entry_year.grid(row=3, column=1, padx=10)
+
+ctk.CTkLabel(input_frame, text="Gender:", text_color="cyan", font=label_font, fg_color="black").grid(row=4, column=0, padx=10, pady=5, sticky="e")
+entry_gender = ctk.CTkEntry(input_frame, width=220, font=input_font)
+entry_gender.grid(row=4, column=1, padx=10)
+
+# ----------------------------
+# RESULT LABEL (dark background)
+# ----------------------------
+result_label = ctk.CTkLabel(game_frame, text="", text_color="white",
+                            font=result_font, justify="left", anchor="nw",
+                            fg_color="black", wraplength=TARGET_W - 80)
+result_label.pack(fill="both", expand=True, padx=20, pady=10)
+
+# ----------------------------
+# BUTTON / PROGRESS CONTAINER
+# - progress bar will appear here just above buttons (about 0.5cm) and then disappear
+# ----------------------------
+button_container = ctk.CTkFrame(game_frame, fg_color="black", corner_radius=0)
+button_container.pack(pady=10)
+
+# create progress bar but do NOT pack it now
+# set progress_color to yellow for the filled portion
+pb = ctk.CTkProgressBar(button_container, width=600, progress_color="#FFD700")
+
+# Buttons frame sits below the progress bar inside the same container
+button_frame = ctk.CTkFrame(button_container, fg_color="black", corner_radius=0)
+button_frame.pack()
+
+# ================================================================
+#                    GAME LOGIC (wired to buttons)
+# ================================================================
+careers = ["Astrophysicist", "Space Scientist", "Doctor", "Engineer",
+           "AI Researcher", "Entrepreneur", "Pilot", "Writer",
+           "Film Maker", "Teacher", "Defence Officer", "Biologist",
+           "Cyber Security Expert", "Psychologist"]
+
+natures = ["calm and focused", "energized and ambitious", "creative and thoughtful",
+           "funny and charming", "serious but kind-hearted", "fast-learning and confident",
+           "adventurous and bold", "quiet but powerful"]
+
+future_events = ["a big opportunity will come soon", "you will meet someone who changes your life",
+                 "your hard work will suddenly pay off", "you will discover a new passion",
+                 "something unexpected will make you very happy",
+                 "you will travel to a new place next year", "you will overcome a challenge successfully"]
+
+lucky_elements = ["Starlight", "Cosmic Dust", "Blue Comet", "Solar Wind",
+                  "Nebula Glow", "Red Planet Energy", "Lunar Beam"]
+
+
+def run_prediction():
+    # clear previous text and show progressbar above buttons (about 0.5 cm = ~12 px)
+    result_label.configure(text="", text_color="white")
+    pb.set(0.0)
+    # pack progress bar into the container above the buttons with small gap
+    pb.pack(side="top", pady=(0, 12))
+
+    name = entry_name.get().strip()
+    Date = entry_Date.get().strip()
+    month = entry_month.get().strip()
+    year = entry_year.get().strip()
+    gender = entry_gender.get().strip()
+
+    month_test= month.strip().lower()
+    gender_lower = gender.strip().lower()
+    
+    if not name or not Date or not month or not year or not gender:
+        result_label.configure(text="❌ Please fill in all fields!", text_color="red")
+        pb.pack_forget()
+        return
+
+    #gender validation
+    if gender_lower not in ["male", "man", "boy", "guy", "m", "female", "woman", "girl", "gal", "f"]:
+        gender = "Other"
+
+    #month validation
+    if month_test not in ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]:
+        if month_test not in ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]:
+            if month_test.isdigit():
+                month_num = int(month_test)
+                if 1 <= month_num <= 12:
+                    month = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"}[month_num]
+                else:
+                    result_label.configure(text="❌ Please enter a valid month!", text_color="red")
+                    pb.pack_forget()
+                    return
+            else:
+                  result_label.configure(text="❌ Please enter a valid month!", text_color="red")
+                  pb.pack_forget()
+                  return
+    try:
+        year_i = int(year)
+        date_i = int(Date)
+    except Exception:
+        result_label.configure(text="❌ Please enter valid numbers for Date and Year!", text_color="red")
+        pb.pack_forget()
+        return
+
+    def animate(value=0):
+        if value <= 100:
+            pb.set(value / 100.0)
+            root.after(12, animate, value + 1)
+        else:
+            # hide progress bar and show result
+            try:
+                pb.pack_forget()
+            except Exception:
+                pass
+            show_result()
+
+    def show_result():
+        career = random.choice(careers)
+        nature = random.choice(natures)
+        event = random.choice(future_events)
+        lucky = random.choice(lucky_elements)
+
+        if date_i <= 10:
+            family_line = "You are independent and strong-willed."
+        elif date_i <= 20:
+            family_line = "You balance competition and cooperation naturally."
+        else:
+            family_line = "You have strong social and leadership qualities."
+
+        if 2025- year_i <= 20:
+            text = (
+                f"\n🔮 Astrology Prediction for {name or 'Player'} 🔮\n\n"
+                f"👤 Name: {name or 'Player'}\n"
+                f"📅 Birth Date: {date_i}\n"
+                f"🌙 Birth Month: {month}\n"
+                f"📆 Birth Year: {year_i}\n"
+                f"🚻 Gender: {gender}\n"
+                f"\n-----------------------------\n\n"
+                f"✨ Nature: You are {nature}\n"
+                f"🚀 Career Path: {career}\n"
+                f"🔭 Prediction: {event}\n"
+                f"🌌 Lucky Cosmic Element: {lucky}\n"
+                f"\n💫 Life Insight: {family_line}\n"
+            )
+        else:
+           text = (
+                f"\n🔮 Astrology Prediction for {name or 'Player'} 🔮\n\n"
+                f"👤 Name: {name or 'Player'}\n"
+                f"📅 Birth Date: {date_i}\n"
+                f"🌙 Birth Month: {month}\n"
+                f"📆 Birth Year: {year_i}\n"
+                f"🚻 Gender: {gender}\n"
+                f"\n-----------------------------\n\n"
+                f"✨ Nature: You are {nature}\n"
+                f"🔭 Prediction: {event}\n"
+                f"🌌 Lucky Cosmic Element: {lucky}\n"
+                f"\n💫 Life Insight: {family_line}\n"
+            )
+        def type_text(t, i=0):
+            if i <= len(t):
+                result_label.configure(text=t[:i])
+                # printing at half the previous speed: previous delay was 6ms, now 12ms
+                result_label.after(type_speed, type_text, t, i + 1)
+
+        type_text(text)
+
+    root.after(50, animate)
+
+def clear_fields():
+    entry_name.delete(0, "end")
+    entry_Date.delete(0, "end")
+    entry_month.delete(0, "end")
+    entry_year.delete(0, "end")
+    entry_gender.delete(0, "end")
+    result_label.configure(text="")
+    try:
+        pb.pack_forget()
+    except Exception:
+        pass
+
+# Buttons inside the nested button_frame (below the progress bar)
+predict_btn = ctk.CTkButton(button_frame, text="Predict", font=button_font,
+                            fg_color="#0040ff", text_color="white",
+                            corner_radius=8, border_width=0, command=run_prediction)
+predict_btn.pack(side="left", padx=10)
+
+clear_btn = ctk.CTkButton(button_frame, text="Clear", font=button_font,
+                          fg_color="#888888", text_color="white",
+                          corner_radius=8, border_width=0,
+                          command=clear_fields)
+clear_btn.pack(side="left", padx=10)
+
+back_btn = ctk.CTkButton(button_frame, text="Back", font=button_font,
+                        fg_color="#cc0000", text_color="white",
+                        corner_radius=8, border_width=0,
+                        command=lambda: [game_frame.place_forget(), menu_frame.place(relx=0, rely=0, relwidth=1, relheight=1)])
+back_btn.pack(side="left", padx=10)
+
+# ensure frames are above the background (no image present)
+menu_frame.lift()
+game_frame.lift()
+
+# start on menu
+menu_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+# ================================================================
+# ENTER KEY NAVIGATION
+# ================================================================
+entry_name.bind("<Return>", lambda e: entry_Date.focus())
+entry_Date.bind("<Return>", lambda e: entry_month.focus())
+entry_month.bind("<Return>", lambda e: entry_year.focus())
+entry_year.bind("<Return>", lambda e: entry_gender.focus())
+entry_gender.bind("<Return>", lambda e: predict_btn.focus())
+
+root.mainloop()
